@@ -1,12 +1,8 @@
-#!/usr/bin/python
-
 import usb.core
 import sys
-import pdb
 import array
 import time
 import struct
-import signal
 
 class Koshava:
 
@@ -253,28 +249,3 @@ class Koshava:
     def GetTemp(self):
         return self.temp
 
-def quit(signum, frame):
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, quit)
-
-myKoschava = Koshava()
-
-if not myKoschava.Connect():
-    print "Could not connect to USB device!"
-    sys.exit(1)
-
-if not myKoschava.ProbeConnected():
-    print "No hall probe connected to device!"
-    sys.exit(2)
-
-while(True):
-    B, mi, ma = myKoschava.ReadData()
-
-    print "%0.5f, %0.5f, %0.5f" % (B, mi, ma)
-
-    time.sleep (.5)
-
-#myKoschava.setValues(unit=0, vrange=3, autorange=True)
-#myKoschava.sendcmd(0x1D)
-#time.sleep (.5)
