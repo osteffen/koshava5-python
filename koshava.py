@@ -81,7 +81,7 @@ class Koshava:
         try:
             self.ep_out.write(msg)
         except usb.core.USBError,e:
-            print e
+            print "WRITE:", e
             pass
 
     def read(self):
@@ -90,7 +90,7 @@ class Koshava:
             #print "Read:",m
             return m
         except usb.core.USBError, e:
-            print e
+            print "READ:", e
             return None
 
     def makeMessage(self, cmd):
@@ -110,51 +110,96 @@ class Koshava:
         autorange = (msg[13] == 1)
         temp_ = msg[14:16]
         temp = self.bytes2short(temp_)/10.0
+        minadc = self.bytes2short(msg[9:11])
+        maxadc = self.bytes2short(msg[11:13])
+
+        B = 1.0 * adc / 10**(rangepos)
 
         print "Unit: ", unit, self.units[unit]
         print "AC/DC:" , acdc
         print "adc:",adc
         print "autorange:",autorange
         print "Temp:",temp
+        print "RangePos:",rangepos
+        print " B =",B,self.units[unit]
+        print "min/max", minadc, maxadc
 
 
     def handle32(self, msg):
         probe_connected = (msg[1] == 1)
         print "Probe is connected?", probe_connected
 
-    def handleC1(self,msg):
-        name = msg[2:22]
-        print name
+    def array2string(self, arr):
+        s = "".join(chr(b) for b in arr) 
+        return s
+
+    def handle1C(self,msg):
+        devicename = self.array2string(msg[2:22])
+        deviceno = msg [22:31]
+        probename = self.array2string(msg [31:53])
+        probecalibdate= msg [53:57]
+        probeno = msg [57:62]
+        print "Device name:", devicename, "Number:", deviceno
+        print "Probe name:", probename, "Number:", probeno
+        print "Calibrated:", probecalibdate
 
     def handleALL(self, msg):
         cmd = msg[0]
-        print cmd
 
         if(cmd == 0x1D):
             self.handle1D(msg)
         elif(cmd == 0x32):
             self.handle32(msg)
-        elif(cmd == 0xc1):
-            self.handleC1(msg)
+        elif(cmd == 0x1c):
+            self.handle1C(msg)
+        elif(cmd == 0x2a):
+            self.handle2a(msg)
 
-    def sendcmd(self, cmd):
+    def sendcmd(self, cmd, answer=True):
         msg = self.makeMessage(cmd)
         self.write(msg)
-        reply = self.read()
 
+        if( answer ):
+            reply = self.read()
+            if( reply is not None ):
+                self.handleALL(reply)
+            else:
+                print "No reply!"
+
+    def setValues(self, vrange=3, unit=0, acdc=0, lang=0, autorange=False):
+        msg = self.makeMessage(0x2a)
+        msg[1] = chr(0x2a)
+        msg[4] = chr(vrange)
+        msg[5] = chr(unit)
+        msg[6] = chr(acdc)
+        msg[7] = chr(lang)
+        msg[13] = chr( 1 if autorange else 0 )
+        self.write(msg)
+
+        reply = self.read()
         if( reply is not None ):
             self.handleALL(reply)
         else:
             print "No reply!"
 
 
+    def handle2a(self, msg):
+        print msg
+
+
 myKoschava = Koshava()
 
 myKoschava.Connect()
-
-myKoschava.sendcmd(0xC1)
-myKoschava.sendcmd(0x32)
-
+#time.sleep(.5)
+#myKoschava.sendcmd(0x1C)
+#time.sleep(.5)
+#myKoschava.sendcmd(0x32)
+# time.sleep(.5)
+# myKoschava.sendcmd(0X1E, answer=False)
 while(True):
     myKoschava.sendcmd(0x1D)
     time.sleep (.5)
+
+#myKoschava.setValues(unit=0, vrange=3, autorange=True)
+#myKoschava.sendcmd(0x1D)
+#time.sleep (.5)
