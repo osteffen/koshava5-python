@@ -161,7 +161,7 @@ class Koshava:
         elif(cmd == 0x1c):
             self.__handle1C(msg)
         elif(cmd == 0x2a):
-            self.__handle2a(msg)
+            self.__handle2A(msg)
 
     def __sendcmd(self, cmd, answer=True):
         msg = self.__makeMessage(cmd)
@@ -191,8 +191,8 @@ class Koshava:
             print "No reply!"
 
 
-    def __handle2a(self, msg):
-        print msg
+    def __handle2A(self, msg):
+        self.__handle1D(msg)
 
 
     """Set auto-ranging. returns True if on, False if off"""
