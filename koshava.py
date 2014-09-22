@@ -6,6 +6,7 @@ import pdb
 import array
 import time
 import struct
+import signal
 
 class Koshava:
 
@@ -252,6 +253,10 @@ class Koshava:
     def GetTemp(self):
         return self.temp
 
+def quit(signum, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, quit)
 
 myKoschava = Koshava()
 
