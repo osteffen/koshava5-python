@@ -35,7 +35,7 @@ if not myKoschava.ProbeConnected():
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-server_address = ('localhost', 1337)
+server_address = ('0.0.0.0', 1337)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 
@@ -45,7 +45,7 @@ def handleRequest(line):
     global myKoschava
     if( line == "read" ):
         B, mi, ma = myKoschava.ReadData()
-        res = "read %0.5f, %0.5f, %0.5f" % (B, mi, ma)
+        res = "read %0.5f %0.5f %0.5f" % (B, mi, ma)
     elif( line == "temp" ):
         res = "temp %0.1f" % myKoschava.GetTemp()
     elif( line == "quit" ):
@@ -61,7 +61,9 @@ def ActiveConnection(connection):
     while True:
         data = connection.recv(16)
         if data:
+            # print "<<", data
             response = handleRequest(data.strip())
+            # print ">>", response
             connection.sendall(response)
         else:
             print >>sys.stderr, 'no more data from', client_address
