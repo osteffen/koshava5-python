@@ -17,7 +17,7 @@ class Koshava:
 
     # static data
     units = ['T', 'G', 'V/cm', 'KV/m', 'Oe' ]   # Unit names
-    convT = [ 1.0, 1.0/10 ,1.0/(10*1000), 1.0/(100*1000), 1.0 ] # Conversion factors to Tesla for each range
+    convT = [ 1.0, 1.0/1000 ,1.0/(10*1000), 1.0/(100*1000), 1.0 ] # Conversion factors to Tesla for each range
     rangetxt = [ 'Invalid', '2T', '200mT', '20mT', 'Invalid' ]  # Range names
 
     # Probe state values
@@ -249,3 +249,5 @@ class Koshava:
     def GetTemp(self):
         return self.temp
 
+    def ResetUSB(self):
+        device.reset()
