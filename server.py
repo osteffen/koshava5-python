@@ -31,6 +31,10 @@ if not myKoschava.ProbeConnected():
     print "No hall probe connectetril d to device!"
     sys.exit()
 
+myKoschava.ReadData()
+myKoschava.SetAutorange(True)
+myKoschava.SetAC(False)
+myKoschava.SetRange(1)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
